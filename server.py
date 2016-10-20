@@ -74,26 +74,44 @@ def flask_post_json():
 @app.route("/")
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    return app.send_static_file('index.html')
+
+@app.route("/picklejar")
+def picklejar():
+    '''Return something coherent here.. perhaps redirect to /static/index.html '''
+    return app.send_static_file('pickle.gif')
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
+    if (request.methods == "POST"):
+        assert(1==0)
+    else:
+        assert(2==0)
     return None
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
+    if (request.methods == "POST"):
+        assert(1==0)
+    else:
+        assert(2==0)
     return None
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
+
     return None
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
+    if (request.methods == "POST"):
+        assert(1==0)
+    else:
+        assert(2==0)
     return None
 
 if __name__ == "__main__":
