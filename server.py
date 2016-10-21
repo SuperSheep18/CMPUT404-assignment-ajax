@@ -84,16 +84,20 @@ def picklejar():
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    if (request.methods == "POST"):
-        assert(1==0)
+
+    # Haven't thought about put yet. . .
+    if (request.method == "POST"):
+        data = flask_post_json()    #gets data from the flask post
+        myWorld.set(entity, data)   # update the world model
     else:
+        #What do we do for puts?
         assert(2==0)
-    return None
+    return None                     # but what do we return? otherwise this should be correct.
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    if (request.methods == "POST"):
+    if (request.method == "POST"):
         assert(1==0)
     else:
         assert(2==0)
@@ -108,7 +112,7 @@ def get_entity(entity):
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    if (request.methods == "POST"):
+    if (request.method == "POST"):
         assert(1==0)
     else:
         assert(2==0)

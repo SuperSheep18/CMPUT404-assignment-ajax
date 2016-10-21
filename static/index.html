@@ -38,8 +38,10 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
-                    //XXX: parse some JSON from the request!
-                    //XXX: Pass the data to the callback!
+                    //XXXcheck: parse some JSON from the request!
+                    //XXXcheck: Pass the data to the callback!
+
+                    callback(JSON.parse(xhr.responseText));        // The callback isnt currently used but hindle showed this in class as correct
                 }
             } 
             catch(e) {
@@ -47,8 +49,12 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             }
         }
     };
-    //XXX: POST to a URL
-    //XXX: set the mimetype and the accept headers!
+    //XXXcheck: POST to a URL
+    xhr.open('POST', url, true);
+    xhr.mimetype = 'application/json';          // Should be override mimetype
+    xhr.send(objects);                          // Do we always have to send these? Soemtimes might send null depending on request type.
+    
+    //XXXcheck: set the mimetype and the accept headers!
     // Remember to use application/json !
 }
 
@@ -137,7 +143,10 @@ function getPosition(e) {
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
-    //XXX: Send a XHTML Request that updates the entity you just  modified!
+    //XXX: Send a XHTML Request that updates the entity you just modified!
+    var cb; //do we need to set this?
+    var obs = JSON.stringify(data);
+    return sendJSONXMLHTTPRequest("/entity/"+entity, obs, cb);// url objects callback. send us to the entity url?
 
 }
 

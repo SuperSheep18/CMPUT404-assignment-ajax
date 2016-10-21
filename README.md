@@ -12,4 +12,5 @@ Contributors / Licensing
 
 Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
 
+Cited for the XHR stuff: http://stackoverflow.com/questions/9713058/send-post-data-using-xmlhttprequest
 
