@@ -76,6 +76,11 @@ def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
     return app.send_static_file('index.html')
 
+#seems to fix the 404 (why does it request it from root in the first place?)
+@app.route("/json2.js", methods=['GET'])
+def jsonfile():
+    return app.send_static_file('json2.js')
+
 @app.route("/picklejar")
 def picklejar():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
@@ -89,25 +94,21 @@ def update(entity):
     if (request.method == "POST"):
         data = flask_post_json()    #gets data from the flask post
         myWorld.set(entity, data)   # update the world model
-    else:
-        #What do we do for puts?
-        assert(2==0)
-    return None                     # but what do we return? otherwise this should be correct.
+    elif (request.method =="PUT"):
+    # Not sure if this should be handled differently. . . 
+        data = flask_post_json()    #gets data from the flask post
+        myWorld.set(entity, data)   # update the world model
+    return flask.jsonify(myWorld.get(entity))
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    if (request.method == "POST"):
-        assert(1==0)
-    else:
-        assert(2==0)
-    return None
+    return flask.jsonify(myWorld.world())
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-
-    return None
+    return flask.jsonify(myWorld.get(entity))
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():

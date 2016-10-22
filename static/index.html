@@ -20,9 +20,15 @@
         See the License for the specific language governing permissions and
         limitations under the License.
     "/>
-    <script src="json2.js"></script>
+    <script src="/json2.js"></script>
   </head> 
   <body bgcolor="black" height="100%" width="100%"> 
+  <button type="button" onclick="changeToRed();" >Red</button>
+  <button type="button" onclick="changeToGreen();" >Green</button>
+  <button type="button" onclick="changeToBlue();" >Blue</button>
+  <button type="button" onclick="changeToRed();" >Circle</button>
+  <button type="button" onclick="changeToGreen();" >Square</button>
+  <button type="button" onclick="changeToBlue();" >Jimmy</button>
     <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
     <script>
 var canvas = document.getElementById('c');
@@ -30,8 +36,6 @@ var host = window.location.host;
 var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
-
-
 function sendJSONXMLHTTPRequest(url, objects, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
@@ -40,7 +44,6 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
                 if (xhr.status==200) {
                     //XXXcheck: parse some JSON from the request!
                     //XXXcheck: Pass the data to the callback!
-
                     callback(JSON.parse(xhr.responseText));        // The callback isnt currently used but hindle showed this in class as correct
                 }
             } 
@@ -49,19 +52,51 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             }
         }
     };
-    //XXXcheck: POST to a URL
-    xhr.open('POST', url, true);
-    xhr.mimetype = 'application/json';          // Should be override mimetype
-    xhr.send(objects);                          // Do we always have to send these? Soemtimes might send null depending on request type.
+
+    if(objects != null){
+        //XXXcheck: POST to a URL
+        xhr.open('POST', url, true);
+        xhr.mimeType = 'application/json';          // Should be override mimetype
+        xhr.send(objects);                          // Do we always have to send these? Sometimes might send null depending on request type.
+    } else{
+        xhr.open('GET', url, true);
+        xhr.mimeType = 'application/json';          // Should be override mimetype
+        xhr.send(null);                             //Use this for GET requests
+    }
     
     //XXXcheck: set the mimetype and the accept headers!
     // Remember to use application/json !
 }
+var color = "red";
+
+function changeToRed(){
+    color = "red";
+}
+
+function changeToGreen(){
+    color = "Green";
+}
+
+function changeToBlue(){
+    color = "Blue";
+}
 
 
 world = {};
-
 //XXX: TODO Make this prettier!
+function drawLine(context,entity){
+    with(context){
+        beginPath();
+        lineWidth = 3;
+        var x = entity["x"];
+        var y = entity["y"];
+        lineTo(x, y);
+        strokeStyle = entity["colour"];
+        stroke();
+        closePath();
+    }
+}
+
 function drawCircle(context,entity) {
     with(context) {
         beginPath();              
@@ -75,7 +110,6 @@ function drawCircle(context,entity) {
         stroke();                                
     }
 }
-
 function prepEntity(entity) {
     if (!entity["colour"]) {
         entity["colour"] = "#FF0000";
@@ -85,16 +119,13 @@ function prepEntity(entity) {
     }
     return entity;
 }
-
 function clearFrame() {
     with(context) {
-	moveTo(0,0);
-	fillStyle = "#000";
-	fillRect(0,0,W,H);
+    moveTo(0,0);
+    fillStyle = "#000";
+    fillRect(0,0,W,H);
     }
-
 }
-
 // This actually draws the frame
 function renderFrame() {
     clearFrame();
@@ -103,14 +134,11 @@ function renderFrame() {
         drawCircle(context,prepEntity(entity));
     }
 }
-
 var drawNext = true;
-
 // Signals that there's something to be drawn
 function drawNextFrame() {
     drawNext = true;
 }
-
 // This optionally draws the frame, call this if you're not sure if you should update
 // the canvas
 function drawFrame() {
@@ -119,44 +147,36 @@ function drawFrame() {
         drawNext = false;
     }
 }
-
 // This is unpleasent, canvas clicks are not handled well
 // So use this code, it works well on multitouch devices as well.
-
 function getPosition(e) {
-	if ( e.targetTouches && e.targetTouches.length > 0) {
-		var touch = e.targetTouches[0];
-		var x = touch.pageX  - canvas.offsetLeft;
-		var y = touch.pageY  - canvas.offsetTop;
-		return [x,y];
-	} else {
-		var rect = e.target.getBoundingClientRect();
-		var x = e.offsetX || e.pageX - rect.left - window.scrollX;
-		var y = e.offsetY || e.pageY - rect.top  - window.scrollY;
-		var x = e.pageX  - canvas.offsetLeft;
-		var y = e.pageY  - canvas.offsetTop;
-		return [x,y];
-	}
+    if ( e.targetTouches && e.targetTouches.length > 0) {
+        var touch = e.targetTouches[0];
+        var x = touch.pageX  - canvas.offsetLeft;
+        var y = touch.pageY  - canvas.offsetTop;
+        return [x,y];
+    } else {
+        var rect = e.target.getBoundingClientRect();
+        var x = e.offsetX || e.pageX - rect.left - window.scrollX;
+        var y = e.offsetY || e.pageY - rect.top  - window.scrollY;
+        var x = e.pageX  - canvas.offsetLeft;
+        var y = e.pageY  - canvas.offsetTop;
+        return [x,y];
+    }
 }
-
-
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
-    var cb; //do we need to set this?
     var obs = JSON.stringify(data);
-    return sendJSONXMLHTTPRequest("/entity/"+entity, obs, cb);// url objects callback. send us to the entity url?
-
+    sendJSONXMLHTTPRequest("entity/"+entity, obs, function(cb){});// url objects callback. send us to the entity url?
 }
-
 var counter = 0;
 function addEntityWithoutName(data) {
     //var name = "X"+Math.floor((Math.random()*100)+1);
     var name = "X"+(counter++)%100;
     addEntity(name,data);
 }
-
 // canvas + mouse/touch is complicated 
 // I give you this because well the mouse/touch stuff is a total
 // pain to get right. This has some out of context bug too.
@@ -193,7 +213,7 @@ mouse = (function() {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
-	        self.clicked = 1;
+            self.clicked = 1;
                 self.callListeners(self.mousedowners,x,y,self.clicked,e);
                 //addEntityWithoutName({'x':x,'y':y,'colour':'red'});
             }
@@ -205,8 +225,8 @@ mouse = (function() {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
-	        //self.poppin(x,y);
-	        self.clicked = 0;
+            //self.poppin(x,y);
+            self.clicked = 0;
                 self.selected = -1;
                 self.callListeners(self.mouseuppers,x,y,self.clicked,e);
                 //addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
@@ -216,29 +236,29 @@ mouse = (function() {
             self.lasttouch = e;                                         
             return self.mousedown(e);
         },
-	touchend: function(e) {
+    touchend: function(e) {
             var touch = (self.lasttouch)?self.lasttouch:e;
             return self.mouseup(touch);
-	},
-	mousemove: function(e) {
+    },
+    mousemove: function(e) {
             e.preventDefault();
             if (self.wasClicked(e)) {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
-	        if (self.clicked != 0) {
-	            //self.squeakin(x,y);
+            if (self.clicked != 0) {
+                //self.squeakin(x,y);
                     self.callListeners(self.mousedraggers,x,y,self.clicked,e);
-	        }
+            }
                 self.callListeners(self.mousemovers,x,y,self.clicked,e);
             }            
-	},
-	touchmove: function(e) {
+    },
+    touchmove: function(e) {
             self.lasttouch = e;                                         
             return self.mousemove(e);
-	},
-	// Install the mouse listeners
-	mouseinstall: function() {
+    },
+    // Install the mouse listeners
+    mouseinstall: function() {
             canvas.addEventListener("mousedown",  self.mousedown, false);
             canvas.addEventListener("mousemove",  self.mousemove, false);
             canvas.addEventListener("mouseup",    self.mouseup, false);
@@ -246,39 +266,30 @@ mouse = (function() {
             canvas.addEventListener("touchstart", self.touchstart, false);
             canvas.addEventListener("touchmove",  self.touchmove, false);
             canvas.addEventListener("touchend",   self.touchend, false);
-	}
+    }
     };
     // Force install!
     self.mouseinstall();
     return self;
 })();
-
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
     addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
 });
-
 mouse.mouseuppers.push(function(x,y,clicked,e) {
     addEntityWithoutName({'x':x,'y':y,'colour':'red'});
 });
-
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
+    addEntityWithoutName({'x':x,'y':y,'colour':color,
                           'radius':10});
 });
-
-
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
-    drawFrame();
+    sendJSONXMLHTTPRequest("/world", null, function(cb){});
 }
-
 // 30 frames per second
 setInterval( update, 1000/30.0);
-
-
-
     </script>
 </body>
 </html>
