@@ -113,11 +113,8 @@ def get_entity(entity):
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    if (request.method == "POST"):
-        assert(1==0)
-    else:
-        assert(2==0)
-    return None
+
+    return flask.jsonify(myWorld.clear())
 
 if __name__ == "__main__":
     app.run()
