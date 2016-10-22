@@ -29,7 +29,7 @@
   <button type="button" onclick="changeToRed();" >Circle</button>
   <button type="button" onclick="changeToGreen();" >Square</button>
   <button type="button" onclick="changeToBlue();" >Jimmy</button>
-  <button type="button" onclick="clear();" >Clear</button>
+  <button type="button" onclick="clearScreen();" >Clear</button>
     <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
     <script>
 var canvas = document.getElementById('c');
@@ -81,8 +81,11 @@ function changeToGreen(){
 function changeToBlue(){
     color = "Blue";
 }
-function clear(){
-    sendJSONXMLHTTPRequest("clear", obs, function(cb){});// url objects callback. send us to the entity url?
+
+function clearScreen(){
+    sendJSONXMLHTTPRequest("clear", null, function(cb){
+        world = cb;
+    });
 }
 
 
