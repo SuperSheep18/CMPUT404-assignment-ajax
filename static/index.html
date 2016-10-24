@@ -302,8 +302,8 @@ function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
     sendJSONXMLHTTPRequest("/world", null, function(cb){
         world = cb;
+        drawNextFrame();
     });
-    drawNextFrame();
     drawFrame();
 }
 // 30 frames per second
