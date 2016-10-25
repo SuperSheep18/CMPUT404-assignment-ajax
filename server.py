@@ -81,11 +81,6 @@ def hello():
 def jsonfile():
     return app.send_static_file('json2.js')
 
-@app.route("/picklejar")
-def picklejar():
-    '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return app.send_static_file('pickle.gif')
-
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
@@ -108,6 +103,7 @@ def world():
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
+
     return flask.jsonify(myWorld.get(entity)).data.rstrip()
 
 @app.route("/clear", methods=['POST','GET'])

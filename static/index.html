@@ -26,14 +26,13 @@
   <button type="button" onclick="changeToRed();" >Red</button>
   <button type="button" onclick="changeToGreen();" >Green</button>
   <button type="button" onclick="changeToBlue();" >Blue</button>
-  <button type="button" onclick="changeToRed();" >Circle</button>
-  <button type="button" onclick="changeToGreen();" >Square</button>
-  <button type="button" onclick="changeToBlue();" >Jimmy</button>
+  <button type="button" onclick="changeToCircle();" >Circle</button>
+  <button type="button" onclick="thereIsNoNeedToBeUpset();" >Jimmy</button>
   <button type="button" onclick="clearScreen();" >Clear</button>
     <canvas id="c" width="100%" height="100%"></canvas> 
     <script>   
-var backgroundImage = new Image();
-backgroundImage.src = "https://i.ytimg.com/vi/oqupUsjbpdM/maxresdefault.jpg";
+var jimmy = new Image();
+jimmy.src = "http://web.pdx.edu/~phillip2/342/grid/img/face1.png";
 var canvas = document.getElementById('c');
 var host = window.location.host;
 var context = canvas.getContext("2d");
@@ -41,8 +40,7 @@ var W = window.innerWidth;
 var H = window.innerHeight;
 context.canvas.width = window.innerWidth;
 context.canvas.height = window.innerHeight;
-
-
+var brush = "circle";
 
 
 function sendJSONXMLHTTPRequest(url, objects, callback) {
@@ -90,6 +88,14 @@ function changeToBlue(){
     color = "Blue";
 }
 
+function changeToCircle(){
+    brush = "circle";
+}
+
+function thereIsNoNeedToBeUpset(){
+    brush = "jimmy";
+}
+
 
 
 world = {};
@@ -98,31 +104,21 @@ function clearScreen(){
     sendJSONXMLHTTPRequest("/clear", null, function(cb){world = cb;});// url objects callback. send us to the entity url?
 }
 
-//XXX: TODO Make this prettier!
-function drawLine(context,entity){
-    with(context){
-        beginPath();
-        lineWidth = 3;
-        var x = entity["x"];
-        var y = entity["y"];
-        lineTo(x, y);
-        strokeStyle = entity["colour"];
-        stroke();
-        closePath();
-    }
-}
-
 function drawCircle(context,entity) {
-    with(context) {
-        beginPath();              
-        lineWidth = 3;
-        var x = entity["x"];
-        var y = entity["y"];
-        //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
-        stroke();                                
+    if (entity["jimmy"] == "true") {
+        context.drawImage(jimmy, entity["x"] - jimmy.width/2 , entity["y"]-jimmy.height/2);
+    } else {
+        with(context) {
+            beginPath();              
+            lineWidth = 3;
+            var x = entity["x"];
+            var y = entity["y"];
+            //moveTo(x,y);
+            fillStyle = entity["colour"];
+            strokeStyle = fillStyle;
+            arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+            stroke();                                
+        }  
     }
 }
 function prepEntity(entity) {
@@ -145,7 +141,9 @@ function renderFrame() {
     clearFrame();
     for (var key in world) {
         var entity = world[key];
+        
         drawCircle(context,prepEntity(entity));
+        
     }
 }
 var drawNext = true;
@@ -227,6 +225,7 @@ mouse = (function() {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
+                
             self.clicked = 1;
                 self.callListeners(self.mousedowners,x,y,self.clicked,e);
                 //addEntityWithoutName({'x':x,'y':y,'colour':'red'});
@@ -239,6 +238,7 @@ mouse = (function() {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
+           
             //self.poppin(x,y);
             self.clicked = 0;
                 self.selected = -1;
@@ -260,6 +260,7 @@ mouse = (function() {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
+                
             if (self.clicked != 0) {
                 //self.squeakin(x,y);
                     self.callListeners(self.mousedraggers,x,y,self.clicked,e);
@@ -289,14 +290,28 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    if (brush == "jimmy"){
+        addEntityWithoutName({'x':x,'y':y,'colour':'blue', "jimmy":'true'});
+    } else {
+        addEntityWithoutName({'x':x,'y':y,'colour':'blue', "jimmy":'false'});
+    }
 });
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    if (brush == "jimmy"){
+        addEntityWithoutName({'x':x,'y':y,'colour':'red', "jimmy":'true'});
+    } else {
+        addEntityWithoutName({'x':x,'y':y,'colour':'red', "jimmy":'false'});
+    }
 });
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':color,
-                          'radius':10});
+    if (brush == "jimmy") {
+        addEntityWithoutName({'x':x,'y':y,'colour':color,
+                          'radius':10, "jimmy":'true'});
+    } else {
+
+        addEntityWithoutName({'x':x,'y':y,'colour':color,
+                              'radius':10, "jimmy":'false'});
+    }
 });
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
